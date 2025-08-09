@@ -1,59 +1,90 @@
 const http = require('http');
 const { exec } = require('child_process');
+const crypto = require('crypto');
 
-// Для drag-and-drop использую 3002 порт! 11:41
+// Настройки для drag-and-drop!
 const PORT = 3002;
-const SECRET_TOKEN = 'supersecrettoken123';
+const WEBHOOK_SECRET = 'supersecrettoken123'; // Должен совпадать с GitHub
+const REPO_DIR = '/root/drag-and-drop';
 
 http
 	.createServer((req, res) => {
-		const url = new URL(req.url, `http://${req.headers.host}`);
-		const token = url.searchParams.get('token');
+		let body = '';
 
-		console.log(`Получен запрос на ${url.pathname} с токеном: ${token}`);
+		req.on('data', chunk => {
+			body += chunk.toString();
+		});
 
-		if (url.pathname === '/deploy' && token === SECRET_TOKEN) {
-			console.log('✅ Токен верный. Запускаю обновление...');
+		req.on('end', () => {
+			const url = new URL(req.url, `http://${req.headers.host}`);
+			console.log(`Получен запрос на ${url.pathname}`);
 
-			const commands = [
-				'cd /root/drag-and-drop',
-				'git reset', // сбрасываем индекс и изменения в файлах
-				'git checkout .', // откатываем все локальные изменения
-				'git pull origin master', // теперь можно обновиться
-				'cd frontend',
-				'npm install',
-				'npm run build',
-				'cd ..',
-				'rm -rf /var/www/drag-and-drop/*',
-				'mkdir -p /var/www/drag-and-drop',
-				'cp -r /root/drag-and-drop/frontend/dist/* /var/www/drag-and-drop/',
-				'cd backend',
-				'pm2 restart drag-and-drop',
-			];
-
-			const cmd = commands.join(' && ');
-
-			exec(cmd, (error, stdout, stderr) => {
-				if (error) {
-					console.error(`❌ Ошибка: ${error.message}`);
-					console.error(`STDERR: ${stderr}`);
-					res.writeHead(500);
-					return res.end('Ошибка при деплое');
+			// Проверяем, что это вебхук от GitHub
+			if (url.pathname === '/deploy') {
+				// Проверяем подпись (X-Hub-Signature-256)
+				const signature = req.headers['x-hub-signature-256'];
+				if (!verifySignature(body, signature, WEBHOOK_SECRET)) {
+					console.log('🚫 Неверная подпись');
+					res.writeHead(401);
+					return res.end('Unauthorized');
 				}
 
-				console.log(`✅ Команды выполнены успешно`);
-				console.log(`STDOUT: ${stdout}`);
-				res.writeHead(200);
-				res.end('Деплой успешно выполнен');
-			});
-		} else {
-			console.log('🚫 Неверный маршрут или токен');
-			res.writeHead(403);
-			res.end('Forbidden');
-		}
+				// Проверяем, что это push в main
+				const payload = JSON.parse(body);
+				if (payload.ref !== 'refs/heads/main') {
+					console.log('🚫 Не в ветку main — игнорируем');
+					res.writeHead(200);
+					return res.end('Ignored');
+				}
+
+				console.log('✅ Вебхук верен. Запускаю деплой...');
+
+				const commands = [
+					`cd ${REPO_DIR}`,
+					'git reset --hard HEAD', // полная очистка
+					'git checkout .', // откат неотслеживаемых
+					'git pull origin main', // обновляем код
+					'cd frontend',
+					'npm install',
+					'npm run build',
+					'cd ..',
+					'rm -rf /var/www/drag-and-drop/*',
+					'mkdir -p /var/www/drag-and-drop',
+					'cp -r frontend/dist/* /var/www/drag-and-drop/',
+					'cd backend',
+					'pm2 restart drag-and-drop',
+				];
+
+				const cmd = commands.join(' && ');
+
+				exec(cmd, { cwd: REPO_DIR }, (error, stdout, stderr) => {
+					if (error) {
+						console.error(`❌ Ошибка: ${error.message}`);
+						console.error(`STDERR: ${stderr}`);
+						res.writeHead(500);
+						return res.end('Ошибка при деплое');
+					}
+
+					console.log(`✅ Деплой успешен`);
+					res.writeHead(200);
+					res.end('Деплой успешно выполнен');
+				});
+			} else {
+				console.log('🚫 Неверный маршрут');
+				res.writeHead(404);
+				res.end('Not Found');
+			}
+		});
 	})
-	.listen(PORT, () => {
-		console.log(
-			`📡 Сервер ожидает команды на http://localhost:${PORT}/deploy?token=supersecrettoken123`
-		);
+	.listen(PORT, '0.0.0.0', () => {
+		console.log(`📡 Деплой-сервер запущен: http://ваш-сервер:${PORT}/deploy`);
 	});
+
+// Функция проверки подписи GitHub
+function verifySignature(payload, signature, secret) {
+	if (!signature) return false;
+	const expected =
+		'sha256=' +
+		crypto.createHmac('sha256', secret).update(payload).digest('hex');
+	return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+}
