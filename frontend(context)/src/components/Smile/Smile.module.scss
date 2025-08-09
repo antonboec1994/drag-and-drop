@@ -1,0 +1,22 @@
+.smileBox {
+	background-color: rgba(#000, 0.6);
+	width: 50px;
+	width: calc(25% - 20px);
+	height: 50px;
+	border-radius: 5px;
+	margin: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	cursor: pointer;
+	transition: all 0.3s;
+	&:hover {
+		background-color: rgba(#000, 0.2);
+		transition: all 0.3s;
+	}
+}
+.delete {
+	margin-top: 5px;
+	width: 10px;
+}

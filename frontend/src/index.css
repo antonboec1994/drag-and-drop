@@ -1,0 +1,26 @@
+* {
+	box-sizing: border-box !important;
+}
+:root {
+	color: rgba(255, 255, 255, 0.87);
+	background-image: radial-gradient(
+		circle,
+		#695b2b,
+		#65412f,
+		#4e3033,
+		#2f252c,
+		#181818
+	);
+}
+
+html,
+body {
+	height: 100vh;
+	position: relative;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 400;
+	overflow: hidden;
+}
+body {
+	margin: 10px;
+}

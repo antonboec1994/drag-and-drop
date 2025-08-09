@@ -1,0 +1,20 @@
+:root {
+	--proportion: var(var(--proportion));
+}
+
+.dots {
+	font-size: calc(3rem * var(--proportion));
+	font-weight: 700;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	text-align: center;
+	width: calc(6.5vw * var(--proportion));
+	height: calc(9.5vh * var(--proportion));
+	margin: calc(1vw * var(--proportion)) calc(1vh * var(--proportion));
+	cursor: pointer;
+	transition: all 0.3s;
+	&:hover {
+		color: #1a1a1a;
+	}
+}

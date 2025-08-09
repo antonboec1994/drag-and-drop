@@ -1,0 +1,43 @@
+:root {
+	--proportion: var(--proportion);
+}
+
+.boxInside {
+	position: relative;
+	border: 1px solid rgb(116, 96, 33);
+	background-color: rgba(#000, 0.2);
+	width: fit-content;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	border-radius: 10px;
+	padding: calc(0.7rem * var(--proportion));
+	margin: calc(1vw * var(--proportion)) calc(1vh * var(--proportion));
+	overflow: hidden;
+	.delete {
+		margin-left: auto;
+		position: absolute;
+		top: -4px;
+		right: -4px;
+		border-bottom-left-radius: 16px;
+		cursor: pointer;
+		transition: all 0.3s;
+		fill: rgb(116, 96, 33);
+		font-size: 1.8rem;
+		z-index: 99;
+		&:hover {
+			fill: rgb(150, 28, 28);
+		}
+	}
+}
+.element {
+	margin: calc(1vw * var(--proportion)) calc(1vh * var(--proportion));
+	font-size: calc(1rem * var(--proportion));
+	span {
+		display: block;
+		margin-top: 1px;
+	}
+}
+.closed {
+	display: none;
+}

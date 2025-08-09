@@ -1,0 +1,17 @@
+.dots {
+	font-size: 50px;
+	font-weight: 700;
+	letter-spacing: 6px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	text-align: center;
+	width: calc(25% - 20px);
+	height: 50px;
+	margin: 10px;
+	cursor: pointer;
+	transition: all 0.3s;
+	&:hover {
+		color: #1a1a1a;
+	}
+}

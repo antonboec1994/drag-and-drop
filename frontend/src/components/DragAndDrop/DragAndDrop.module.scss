@@ -1,0 +1,201 @@
+:root {
+	--proportion: var(--proportion);
+}
+
+.wrapper {
+	position: relative;
+	background-color: rgba(#fff, 0.1);
+	background-image: radial-gradient(
+		circle,
+		#695b2b,
+		#65412f,
+		#4e3033,
+		#2f252c,
+		#181818
+	);
+	padding: calc(10px * var(--proportion));
+	border-radius: 10px;
+	width: 100%;
+	max-width: 100%;
+	height: 100%;
+	overflow: hidden;
+	display: grid;
+	grid-template-columns:
+		calc((50vw - (3 * 6.5vw) - 5vw) * var(--proportion))
+		calc((50vw - (3 * 6.5vw) - 5vw) * var(--proportion))
+		calc((50vw - (3 * 6.5vw) - 5vw) * var(--proportion));
+	grid-template-rows:
+		calc(28vh * var(--proportion))
+		calc(28vh * var(--proportion))
+		calc(28vh * var(--proportion));
+	grid-template-areas:
+		'box1 . box2'
+		' . inner . '
+		'box3 . box4';
+	[data-index='0'] {
+		grid-area: box1;
+	}
+	[data-index='1'] {
+		grid-area: box2;
+	}
+	[data-index='2'] {
+		grid-area: box3;
+	}
+	[data-index='3'] {
+		grid-area: box4;
+	}
+	[data-index='4'] {
+		grid-area: box5;
+	}
+	[data-index='5'] {
+		grid-area: box6;
+	}
+	[data-index='6'] {
+		grid-area: box7;
+	}
+	[data-index='7'] {
+		grid-area: box8;
+	}
+	[data-index='8'] {
+		grid-area: box9;
+	}
+	[data-index='9'] {
+		grid-area: box10;
+	}
+	gap: calc(1vw * var(--proportion));
+	align-items: center;
+	align-content: center;
+	justify-content: center;
+
+	background-image: repeating-linear-gradient(
+			0deg,
+			transparent,
+			transparent 19px,
+			rgba(0, 0, 0, 0.1) 20px,
+			rgba(0, 0, 0, 0.1) 20px
+		),
+		repeating-linear-gradient(
+			90deg,
+			transparent,
+			transparent 19px,
+			rgba(0, 0, 0, 0.1) 20px,
+			rgba(0, 0, 0, 0.1) 20px
+		);
+}
+:global(.wrapperProportion-06) {
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+	grid-template-rows:
+		calc((100vh / 5) - 3vh)
+		calc((100vh / 5) - 3vh)
+		calc((100vh / 5) - 3vh)
+		calc((100vh / 5) - 3vh)
+		calc((100vh / 5) - 3vh);
+	grid-template-areas:
+		'box5 . . . box6'
+		'. box1 . box2 .'
+		'box7 . inner . box8'
+		'. box3 . box4 .'
+		'box9 . . . box10';
+}
+.inner {
+	grid-area: inner;
+	height: calc(64vh * var(--proportion));
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	margin-top: calc(-9rem * var(--proportion));
+}
+.startDrag {
+	overflow-y: auto;
+	overflow-x: hidden;
+	display: flex !important;
+	flex-wrap: wrap;
+	justify-content: start;
+	align-content: flex-start;
+	background-color: rgba(#483939, 0.3);
+	border: 4px solid rgb(10, 108, 57);
+	border-radius: 10px;
+	padding: calc(0.5vw * var(--proportion));
+	box-shadow: 0px 0px 10px 0px rgba(68, 171, 116, 0.6);
+	width: 100%;
+	height: calc(41vh * var(--proportion));
+}
+.endDrag {
+	position: relative;
+	transition: all 0.5s;
+	background-color: rgba(#bababa, 0.3);
+	border: 2px solid rgb(116, 96, 33);
+	border-radius: 10px;
+	padding: calc(0.5vw * var(--proportion));
+	display: flex !important;
+	flex-wrap: wrap;
+	justify-content: start;
+	align-content: flex-start;
+	align-items: flex-start;
+	overflow-y: auto;
+	overflow-x: hidden;
+	box-shadow: 0px 0px 20px 0px rgba(34, 60, 80, 0.6);
+	height: calc(((100vh - 32vh) / 2) * var(--proportion));
+	&.activeEndDrag {
+		border: 2px dashed #10e25a;
+		background-color: rgba(#235033, 0.6) !important;
+		transform: scale(1.01);
+	}
+	&.animateOpacity {
+		opacity: 0;
+	}
+	&.closed {
+		opacity: 0;
+		visibility: hidden;
+	}
+	.delete {
+		margin-left: auto;
+		position: absolute;
+		top: -4px;
+		right: -4px;
+		border-bottom-left-radius: 16px;
+		cursor: pointer;
+		transition: all 0.3s;
+		fill: rgb(116, 96, 33);
+		font-size: 1.8rem;
+		z-index: 99;
+		&:hover {
+			fill: rgb(150, 28, 28);
+		}
+	}
+	&.draggableBox {
+		position: absolute;
+		width: calc((50vw - (3 * 6.5vw) - 5vw) * var(--proportion));
+		background-color: rgb(144, 64, 64) !important;
+	}
+}
+.buttons {
+	margin-bottom: calc(1rem * var(--proportion));
+	padding: calc(1rem * var(--proportion));
+	width: 100%;
+	max-width: calc(25vw * var(--proportion));
+	height: auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+.button {
+	margin: calc(0.5vh * var(--proportion)) 0;
+	background-color: rgba(#2d312f, 0.6);
+	padding: calc(1vh * var(--proportion)) calc(2vw * var(--proportion));
+	min-width: calc(17vw * var(--proportion));
+	width: fit-content;
+	cursor: pointer;
+	transition: all 0.3s;
+	color: #ebe5e5;
+	border-radius: 6px;
+	border: 1px solid rgb(126, 126, 126);
+	font-size: calc(1rem * 1);
+	&:hover {
+		background-color: rgba(#ebe5e5, 0.8);
+		color: #181818;
+	}
+}

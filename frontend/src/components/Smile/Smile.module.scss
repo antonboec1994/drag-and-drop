@@ -1,0 +1,122 @@
+:root {
+	--proportion: var(--proportion);
+}
+
+.smileBox {
+	z-index: 10;
+	position: relative;
+	background-color: rgba(#000, 0.6);
+	width: calc(6.5vw * var(--proportion));
+	height: calc(6.5vw * var(--proportion));
+	border-radius: var(--borderRadius);
+	padding: calc(0.7rem * var(--proportion));
+	margin: calc(1vw * var(--proportion)) calc(1vh * var(--proportion));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	cursor: pointer;
+	transition: all 0.3s;
+	font-size: calc(1.5rem * var(--proportion));
+	box-shadow: inset 20px 20px 20px rgba(68, 8, 8, 0.05),
+		25px 35px 20px rgba(104, 8, 8, 0.05), 25px 20px 20px rgba(93, 10, 10, 0.05),
+		inset 25px 30px 30px rgba(68, 35, 35, 0.9);
+	animation: animateBorder var(--animationTime) infinite;
+
+	&:hover {
+		transition: all 0.3s;
+		background-color: #262626;
+	}
+	span {
+		display: block;
+		margin-top: 5px;
+		font-size: 14px;
+	}
+	&::before {
+		content: '';
+		position: absolute;
+		width: calc(2vw * var(--proportion));
+		height: calc(2vw * var(--proportion));
+		background-color: #705353c8;
+		top: var(--beforeTop);
+		left: var(--beforeLeft);
+		border-radius: 50%;
+		opacity: 0.6;
+		animation: animateBubbles var(--animationTime) infinite;
+	}
+	&::after {
+		content: '';
+		position: absolute;
+		width: calc(1vw * var(--proportion));
+		height: calc(1vw * var(--proportion));
+		background-color: #baa6a6c8;
+		top: var(--afterTop);
+		left: var(--afterLeft);
+		border-radius: 50%;
+		opacity: 0.4;
+		animation: animateBubbles var(--animationTime) infinite;
+	}
+	&.dragged {
+		pointer-events: none;
+		animation: animateBorder var(--animationTime) infinite 3s;
+	}
+	&.animationOn {
+		animation: smoothMove var(--animationDuration) cubic-bezier(0.4, 0, 0.2, 1);
+		animation-delay: var(--animationDelay);
+		animation-fill-mode: forwards;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+}
+@keyframes smoothMove {
+	from {
+		opacity: 1;
+	}
+	to {
+		transform: translate(-100%, -100%)
+			translate(var(--endPositionX), var(--endPositionY));
+		opacity: 0;
+	}
+}
+@keyframes draggedOpacity {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes animateBorder {
+	50% {
+		border-radius: calc(var(--borderRadius) + 1);
+	}
+}
+@keyframes animateBubbles {
+	50% {
+		opacity: 0;
+	}
+}
+.delete {
+	margin-top: calc(1.5vh * var(--proportion));
+	width: calc(1vw * var(--proportion));
+	position: absolute;
+	right: calc(5px * var(--proportion));
+	bottom: calc(5px * var(--proportion));
+	transition: all 0.3s;
+	color: rgb(213, 46, 46);
+	pointer-events: initial;
+	&:hover {
+		color: rgb(26, 26, 26);
+		transition: all 0.3s;
+	}
+}
+:global(.onDragStart) {
+	transition: all 0.5s;
+	transform: scale(1.1) rotate(2deg);
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+.offOpacity {
+	transform: scale(2) rotate(2deg);
+}
