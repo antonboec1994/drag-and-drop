@@ -1,10 +1,9 @@
-const http = require('http');
-const { exec } = require('child_process');
-const crypto = require('crypto');
+import http from 'http';
+import crypto from 'crypto';
+import { exec } from 'child_process';
 
-// Настройки для drag-and-drop!
 const PORT = 3002;
-const WEBHOOK_SECRET = 'supersecrettoken123'; // Должен совпадать с GitHub
+const SECRET_TOKEN = 'supersecrettoken123';
 const REPO_DIR = '/root/drag-and-drop';
 
 http
@@ -23,7 +22,7 @@ http
 			if (url.pathname === '/deploy') {
 				// Проверяем подпись (X-Hub-Signature-256)
 				const signature = req.headers['x-hub-signature-256'];
-				if (!verifySignature(body, signature, WEBHOOK_SECRET)) {
+				if (!verifySignature(body, signature, SECRET_TOKEN)) {
 					console.log('🚫 Неверная подпись');
 					res.writeHead(401);
 					return res.end('Unauthorized');
@@ -37,22 +36,36 @@ http
 					return res.end('Ignored');
 				}
 
-				console.log('✅ Вебхук верен. Запускаю деплой...');
+				console.log('✅ Вебхук верен. Запускаю обновление...');
 
 				const commands = [
 					`cd ${REPO_DIR}`,
-					'git reset --hard HEAD', // полная очистка
-					'git checkout .', // откат неотслеживаемых
-					'git pull origin main', // обновляем код
+					'git reset --hard HEAD',
+					'git checkout .',
+					'git pull origin main',
+
+					// Установка зависимостей frontend
 					'cd frontend',
-					'npm install',
-					'npm run build',
+					'npm install || echo "⚠️ npm install failed or skipped"',
+
+					// Сборка frontend (если есть build)
+					'if npm run build; then echo "✅ Frontend успешно собран"; else echo "⚠️ Скрипт build не найден или пропущен"; fi',
+
+					// Копирование
 					'cd ..',
 					'rm -rf /var/www/drag-and-drop/*',
 					'mkdir -p /var/www/drag-and-drop',
-					'cp -r frontend/dist/* /var/www/drag-and-drop/',
+					'cp -r frontend/dist/* /var/www/drag-and-drop/ 2>/dev/null || echo "⚠️ Нет файлов для копирования (возможно, сборка не выполнена)"',
+
+					// Сборка backend (если есть build)
 					'cd backend',
-					'pm2 restart drag-and-drop',
+					'echo "🔧 Проверка и сборка backend..."',
+					'if npm run build; then echo "✅ Backend успешно собран"; else echo "⚠️ Скрипт build не найден или пропущен"; fi',
+
+					// Перезапуск PM2
+					'cd ..',
+					'pm2 restart drag-and-drop || echo "⚠️ Ошибка перезапуска drag-and-drop"',
+					`pm2 restart drag-and-drop-deploy:${PORT} --update-env || echo "⚠️ Ошибка перезапуска деплой-сервера"`,
 				];
 
 				const cmd = commands.join(' && ');
@@ -77,7 +90,9 @@ http
 		});
 	})
 	.listen(PORT, '0.0.0.0', () => {
-		console.log(`📡 Деплой-сервер запущен: http://ваш-сервер:${PORT}/deploy`);
+		console.log(
+			`📡 Деплой-сервер запущен: http://194.58.114.184:${PORT}/deploy`
+		);
 	});
 
 // Функция проверки подписи GitHub
